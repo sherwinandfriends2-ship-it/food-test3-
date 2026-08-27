@@ -1,0 +1,973 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Tony &amp; Co.</title>
+
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap');
+
+  * { box-sizing: border-box; }
+  body { margin: 0; }
+
+  .tc-app {
+    --bg: #FAFAF8;
+    --ink: #1C1B19;
+    --muted: #8A857D;
+    --accent: #E8542A;
+    --accent-ink: #FFFFFF;
+    --green: #2F6D4F;
+    --line: #EAE5DC;
+    --card: #FFFFFF;
+    --radius: 14px;
+    font-family: 'Inter', -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+    line-height: 1.4;
+  }
+  .tc-app h1, .tc-app h2, .tc-app h3, .tc-app h4 {
+    font-family: 'Fraunces', Georgia, serif;
+    margin: 0 0 4px 0;
+    font-weight: 600;
+  }
+  .tc-app p { margin: 0 0 6px 0; }
+  .tc-mono { font-family: 'Space Mono', monospace; }
+  .tc-muted { color: var(--muted); font-size: 0.88rem; }
+
+  .tc-page { max-width: 780px; margin: 0 auto; padding: 24px 20px 80px; }
+
+  /* Header */
+  .tc-header { border-bottom: 1px solid var(--line); position: sticky; top: 0; background: var(--bg); z-index: 10; }
+  .tc-header-inner { max-width: 820px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; padding: 14px 20px; gap: 12px; }
+  .tc-logo { display: flex; flex-direction: column; align-items: flex-start; background: none; border: none; cursor: pointer; padding: 0; }
+  .tc-logo-mark { font-family: 'Fraunces', serif; font-weight: 700; font-size: 1.3rem; color: var(--accent); line-height: 1; }
+  .tc-logo-sub { font-size: 0.65rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+  .tc-nav { display: flex; gap: 4px; }
+  .tc-nav-btn { background: none; border: none; padding: 8px 12px; border-radius: 999px; cursor: pointer; font-size: 0.92rem; color: var(--muted); font-weight: 500; }
+  .tc-nav-btn.is-active { background: var(--ink); color: #fff; }
+  .tc-cart-btn { position: relative; background: var(--accent); color: #fff; border: none; padding: 9px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 0.9rem; }
+  .tc-cart-badge { position: absolute; top: -6px; right: -6px; background: var(--ink); color: #fff; font-size: 0.65rem; padding: 2px 6px; border-radius: 999px; }
+
+  /* Hero / home */
+  .tc-hero { padding: 24px 0 20px; }
+  .tc-hero h1 { font-size: 2rem; }
+  .tc-search { width: 100%; padding: 14px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); font-size: 1rem; margin-top: 12px; }
+  .tc-chip-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 16px; margin-bottom: 8px; }
+  .tc-chip { flex-shrink: 0; padding: 7px 14px; border-radius: 999px; border: 1px solid var(--line); background: var(--card); cursor: pointer; font-size: 0.85rem; color: var(--ink); }
+  .tc-chip.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .tc-shop-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .tc-shop-card { display: flex; gap: 14px; text-align: left; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px; cursor: pointer; }
+  .tc-shop-card:hover { border-color: var(--accent); }
+  .tc-shop-avatar { width: 52px; height: 52px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.6rem; flex-shrink: 0; }
+  .tc-shop-avatar-lg { width: 68px; height: 68px; font-size: 2rem; }
+  .tc-shop-info h3 { font-size: 1.05rem; }
+  .tc-shop-tagline { font-size: 0.88rem; color: var(--muted); }
+  .tc-shop-meta { display: flex; gap: 10px; align-items: center; margin-top: 4px; font-size: 0.8rem; }
+  .tc-tag { background: #F1EEE7; padding: 2px 9px; border-radius: 999px; font-size: 0.75rem; }
+  .tc-tag-muted { background: #F1EEE7; color: var(--muted); }
+  .tc-tag-status { background: var(--ink); color: #fff; }
+  .tc-shop-fulfil { display: flex; gap: 8px; margin-top: 6px; }
+  .tc-shop-fulfil span { font-size: 0.75rem; color: var(--green); border: 1px solid var(--green); padding: 2px 8px; border-radius: 999px; }
+
+  /* Shop detail */
+  .tc-back { background: none; border: none; color: var(--muted); cursor: pointer; font-size: 0.88rem; padding: 0; margin-bottom: 16px; }
+  .tc-shop-header { display: flex; gap: 16px; padding: 18px; border: 1px solid var(--line); border-left: 4px solid; border-radius: var(--radius); margin-bottom: 20px; background: var(--card); }
+  .tc-section-title { margin-top: 24px; margin-bottom: 12px; font-size: 1.15rem; }
+  .tc-item-list { display: flex; flex-direction: column; gap: 10px; }
+  .tc-item-row { display: flex; gap: 14px; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; }
+  .tc-item-emoji { font-size: 1.8rem; width: 44px; text-align: center; flex-shrink: 0; }
+  .tc-item-info { flex: 1; }
+  .tc-item-info h4 { font-size: 0.98rem; }
+  .tc-item-info p { font-size: 0.85rem; color: var(--muted); margin-bottom: 4px; }
+  .tc-price { font-family: 'Space Mono', monospace; font-weight: 700; font-size: 0.9rem; }
+  .tc-item-action { flex-shrink: 0; }
+  .tc-item-action-col { display: flex; flex-direction: column; gap: 6px; align-items: flex-end; }
+
+  .tc-stepper { display: flex; align-items: center; gap: 10px; border: 1px solid var(--line); border-radius: 999px; padding: 4px 8px; }
+  .tc-stepper button { background: none; border: none; font-size: 1.1rem; cursor: pointer; width: 22px; color: var(--ink); }
+  .tc-stepper span { min-width: 14px; text-align: center; font-family: 'Space Mono', monospace; }
+
+  .tc-btn { border: 1px solid var(--ink); background: #fff; color: var(--ink); padding: 9px 16px; border-radius: 999px; cursor: pointer; font-weight: 600; font-size: 0.88rem; }
+  .tc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tc-btn-primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .tc-btn-lg { padding: 13px 22px; font-size: 0.95rem; }
+  .tc-btn-full { width: 100%; }
+  .tc-btn-sm { padding: 6px 12px; font-size: 0.78rem; }
+  .tc-link { background: none; border: none; color: var(--ink); text-decoration: underline; cursor: pointer; font-size: 0.85rem; }
+  .tc-link-danger { background: none; border: none; color: #B23A2A; cursor: pointer; font-size: 0.8rem; }
+
+  /* Receipt / cart */
+  .tc-receipt { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; position: relative; margin-bottom: 18px; }
+  .tc-receipt-compact { padding: 16px 20px; }
+  .tc-receipt-row { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; font-size: 0.9rem; gap: 10px; }
+  .tc-row-actions { display: flex; align-items: center; gap: 10px; }
+  .tc-receipt-cut { border-top: 1px dashed var(--line); margin: 10px 0; }
+  .tc-total-row { font-weight: 700; font-size: 1.05rem; border-top: 1px solid var(--ink); margin-top: 4px; padding-top: 10px; }
+  .tc-order-num { font-size: 0.8rem; color: var(--muted); margin-bottom: 4px; }
+
+  .tc-fulfil-toggle, .tc-radio-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .tc-toggle-btn { padding: 8px 14px; border-radius: 999px; border: 1px solid var(--line); background: #fff; cursor: pointer; font-size: 0.85rem; }
+  .tc-toggle-btn.is-active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  .tc-cart-footer { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+
+  /* Forms */
+  .tc-form-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 20px; display: flex; flex-direction: column; gap: 14px; margin-bottom: 20px; }
+  .tc-field { display: flex; flex-direction: column; gap: 6px; font-size: 0.85rem; font-weight: 600; }
+  .tc-field input, .tc-field select, .tc-field textarea {
+    font-family: inherit; padding: 11px 12px; border-radius: 8px; border: 1px solid var(--line); font-size: 0.95rem; font-weight: 400; background: #fff;
+  }
+  .tc-field textarea { min-height: 70px; resize: vertical; }
+  .tc-hint { font-size: 0.8rem; color: var(--muted); }
+  .tc-check-row { display: flex; gap: 10px; align-items: flex-start; font-size: 0.88rem; cursor: pointer; }
+  .tc-check-row input { margin-top: 3px; }
+
+  /* Sell wizard */
+  .tc-progress-dots { display: flex; gap: 6px; margin-bottom: 20px; }
+  .tc-dot { width: 26px; height: 4px; border-radius: 2px; background: var(--line); }
+  .tc-dot.is-active { background: var(--accent); }
+  .tc-wizard-nav { display: flex; justify-content: space-between; }
+  .tc-review-card { display: flex; gap: 14px; background: #F7F5F0; border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+
+  /* Status track */
+  .tc-status-track { display: flex; justify-content: space-between; margin-bottom: 20px; position: relative; }
+  .tc-status-track::before { content: ''; position: absolute; top: 6px; left: 6px; right: 6px; height: 2px; background: var(--line); z-index: 0; }
+  .tc-status-step { display: flex; flex-direction: column; align-items: center; gap: 8px; font-size: 0.72rem; color: var(--muted); position: relative; z-index: 1; flex: 1; text-align: center; }
+  .tc-status-dot { width: 14px; height: 14px; border-radius: 50%; background: var(--line); border: 2px solid var(--bg); }
+  .tc-status-step.is-done { color: var(--ink); font-weight: 600; }
+  .tc-status-step.is-done .tc-status-dot { background: var(--green); }
+
+  .tc-confirm-banner { display: flex; align-items: center; gap: 14px; background: #EEF6F1; border: 1px solid var(--green); border-radius: var(--radius); padding: 16px; margin-bottom: 20px; }
+  .tc-confirm-check { background: var(--green); color: #fff; width: 34px; height: 34px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; flex-shrink: 0; }
+
+  /* Orders list */
+  .tc-order-list { display: flex; flex-direction: column; gap: 10px; }
+  .tc-order-list-item { display: flex; align-items: center; gap: 14px; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px; cursor: pointer; text-align: left; }
+  .tc-order-list-emoji { font-size: 1.5rem; }
+  .tc-order-list-info { flex: 1; }
+  .tc-order-list-right { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+
+  /* Empty state */
+  .tc-empty { text-align: center; padding: 50px 20px; }
+  .tc-empty-emoji { font-size: 2.5rem; margin-bottom: 10px; }
+
+  /* Toast */
+  .tc-toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--ink); color: #fff; padding: 10px 18px; border-radius: 999px; font-size: 0.85rem; z-index: 50; }
+
+  .tc-footer { max-width: 780px; margin: 0 auto; padding: 20px; display: flex; justify-content: space-between; align-items: center; gap: 12px; border-top: 1px solid var(--line); font-size: 0.78rem; color: var(--muted); flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .tc-header-inner { flex-wrap: wrap; }
+    .tc-nav { order: 3; width: 100%; justify-content: space-between; }
+    .tc-hero h1 { font-size: 1.5rem; }
+  }
+</style>
+</head>
+<body>
+<div id="root"></div>
+
+<script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone/babel.min.js" crossorigin></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef } = React;
+
+/* ---------------------------------------------------------
+   Tony & Co. — a minimal, editable food-ordering site
+   Data is saved in this browser's localStorage, so it
+   persists on reload but is local to this device/browser
+   (it is not a shared database other visitors can see).
+--------------------------------------------------------- */
+
+const CATEGORIES = ["Rice Meals", "Cafe & Drinks", "Street Food", "Desserts", "Fast Food", "Healthy", "Other"];
+const SHOP_COLORS = ["#E8542A", "#2F6D4F", "#6B4226", "#B23A6B", "#3A5FA0", "#8A6D1D"];
+
+const SEED_SHOPS = [
+  { id: "s1", name: "Lola Rosing's Kitchen", category: "Rice Meals", tagline: "Home-style Filipino comfort food", description: "Family recipes passed down three generations — adobo, sinigang, and everything in between.", emoji: "🍚", color: "#E8542A", pickup: true, delivery: true, prepTime: "20-30 min", contact: "0917 000 1111" },
+  { id: "s2", name: "Brew & Bean Co.", category: "Cafe & Drinks", tagline: "Coffee, milk tea, and fresh pastries", description: "Small-batch roasted coffee and daily-baked pastries.", emoji: "☕", color: "#6B4226", pickup: true, delivery: true, prepTime: "10-15 min", contact: "0917 000 2222" },
+  { id: "s3", name: "Sizzle Street", category: "Street Food", tagline: "Grilled skewers, done right", description: "Grilled over real charcoal, basted the old way.", emoji: "🍢", color: "#2F6D4F", pickup: true, delivery: false, prepTime: "15-20 min", contact: "0917 000 3333" },
+  { id: "s4", name: "Sweet Spoon", category: "Desserts", tagline: "Halo-halo, leche flan, and more", description: "Cold, sweet, and made fresh every day.", emoji: "🍨", color: "#B23A6B", pickup: true, delivery: true, prepTime: "10 min", contact: "0917 000 4444" },
+];
+
+const SEED_MENUS = {
+  s1: [
+    { id: "i1", name: "Chicken Adobo", price: 139, description: "Braised chicken in soy-vinegar sauce, with rice", emoji: "🍗", available: true },
+    { id: "i2", name: "Pork Sinigang", price: 159, description: "Sour tamarind soup with pork and vegetables", emoji: "🍲", available: true },
+    { id: "i3", name: "Beef Kaldereta", price: 169, description: "Rich tomato beef stew with potatoes and carrots", emoji: "🥘", available: true },
+  ],
+  s2: [
+    { id: "i1", name: "Iced Spanish Latte", price: 129, description: "Espresso, condensed milk, fresh milk over ice", emoji: "🥤", available: true },
+    { id: "i2", name: "Wintermelon Milk Tea", price: 109, description: "Classic milk tea with brown sugar pearls", emoji: "🧋", available: true },
+    { id: "i3", name: "Butter Croissant", price: 89, description: "Baked fresh every morning", emoji: "🥐", available: true },
+  ],
+  s3: [
+    { id: "i1", name: "Pork BBQ Skewer (3pc)", price: 99, description: "Sweet and smoky grilled pork skewers", emoji: "🍡", available: true },
+    { id: "i2", name: "Isaw (10pc)", price: 59, description: "Grilled chicken intestine skewers", emoji: "🍢", available: true },
+  ],
+  s4: [
+    { id: "i1", name: "Halo-Halo Special", price: 119, description: "Shaved ice, ube, leche flan, sweet beans, and more", emoji: "🍧", available: true },
+    { id: "i2", name: "Leche Flan Cup", price: 69, description: "Creamy caramel custard", emoji: "🍮", available: true },
+  ],
+};
+
+const PICKUP_STATUSES = ["Received", "Preparing", "Ready for pickup", "Completed"];
+const DELIVERY_STATUSES = ["Received", "Preparing", "Out for delivery", "Delivered"];
+
+function peso(n) { return "₱" + Number(n).toLocaleString("en-PH"); }
+function newId(prefix) { return prefix + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+function orderNumber() { return "TC-" + Date.now().toString().slice(-6); }
+
+function storageGet(key) {
+  try {
+    const raw = localStorage.getItem(key);
+    return raw ? JSON.parse(raw) : null;
+  } catch (e) { return null; }
+}
+function storageSet(key, value) {
+  try {
+    localStorage.setItem(key, JSON.stringify(value));
+    return true;
+  } catch (e) { return false; }
+}
+
+/* ---------------------------- small UI bits ---------------------------- */
+
+function Toast({ message }) {
+  if (!message) return null;
+  return <div className="tc-toast">{message}</div>;
+}
+
+function Stepper({ qty, onDec, onInc }) {
+  return (
+    <div className="tc-stepper">
+      <button aria-label="Decrease quantity" onClick={onDec}>–</button>
+      <span>{qty}</span>
+      <button aria-label="Increase quantity" onClick={onInc}>+</button>
+    </div>
+  );
+}
+
+function EmptyState({ emoji, title, note, action }) {
+  return (
+    <div className="tc-empty">
+      <div className="tc-empty-emoji">{emoji}</div>
+      <h3>{title}</h3>
+      {note && <p>{note}</p>}
+      {action}
+    </div>
+  );
+}
+
+function ReceiptDivider() { return <div className="tc-receipt-cut" />; }
+
+/* ------------------------------- Header -------------------------------- */
+
+function Header({ view, setView, cartCount }) {
+  const tabs = [
+    { id: "home", label: "Browse" },
+    { id: "orders", label: "My Orders" },
+    { id: "sell", label: "Sell with us" },
+  ];
+  return (
+    <header className="tc-header">
+      <div className="tc-header-inner">
+        <button className="tc-logo" onClick={() => setView("home")}>
+          <span className="tc-logo-mark">T&amp;Co.</span>
+          <span className="tc-logo-sub">Tony &amp; Co.</span>
+        </button>
+        <nav className="tc-nav">
+          {tabs.map((t) => (
+            <button key={t.id} className={"tc-nav-btn" + (view === t.id ? " is-active" : "")} onClick={() => setView(t.id)}>
+              {t.label}
+            </button>
+          ))}
+        </nav>
+        <button className="tc-cart-btn" onClick={() => setView("cart")}>
+          🛒 Cart
+          {cartCount > 0 && <span className="tc-cart-badge">{cartCount}</span>}
+        </button>
+      </div>
+    </header>
+  );
+}
+
+/* -------------------------------- Home ---------------------------------- */
+
+function HomeView({ shops, onOpenShop }) {
+  const [query, setQuery] = useState("");
+  const [cat, setCat] = useState("All");
+
+  const filtered = shops.filter((s) => {
+    const matchesCat = cat === "All" || s.category === cat;
+    const matchesQuery = !query.trim() || s.name.toLowerCase().includes(query.toLowerCase()) || s.category.toLowerCase().includes(query.toLowerCase());
+    return matchesCat && matchesQuery;
+  });
+
+  return (
+    <div className="tc-page">
+      <section className="tc-hero">
+        <h1>What are you craving today?</h1>
+        <p>Order from real shops around you — or open your own in a few minutes.</p>
+        <input className="tc-search" type="text" placeholder="Search shops or categories…" value={query} onChange={(e) => setQuery(e.target.value)} />
+      </section>
+
+      <div className="tc-chip-row">
+        {["All", ...CATEGORIES].map((c) => (
+          <button key={c} className={"tc-chip" + (cat === c ? " is-active" : "")} onClick={() => setCat(c)}>{c}</button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <EmptyState emoji="🍽️" title="No shops match that search" note="Try a different keyword or category." />
+      ) : (
+        <div className="tc-shop-grid">
+          {filtered.map((s) => (
+            <button key={s.id} className="tc-shop-card" onClick={() => onOpenShop(s.id)}>
+              <div className="tc-shop-avatar" style={{ background: s.color }}>{s.emoji}</div>
+              <div className="tc-shop-info">
+                <h3>{s.name}</h3>
+                <p className="tc-shop-tagline">{s.tagline}</p>
+                <div className="tc-shop-meta">
+                  <span className="tc-tag">{s.category}</span>
+                  <span className="tc-muted">⏱ {s.prepTime}</span>
+                </div>
+                <div className="tc-shop-fulfil">
+                  {s.pickup && <span>Pickup</span>}
+                  {s.delivery && <span>Delivery</span>}
+                </div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* -------------------------------- Shop ---------------------------------- */
+
+function ShopView({ shop, items, cart, onAdd, onDec, onBack }) {
+  if (!shop) return null;
+  const qtyOf = (itemId) => (cart && cart.shopId === shop.id ? (cart.items[itemId]?.qty || 0) : 0);
+
+  return (
+    <div className="tc-page">
+      <button className="tc-back" onClick={onBack}>← Back to shops</button>
+      <section className="tc-shop-header" style={{ borderColor: shop.color }}>
+        <div className="tc-shop-avatar tc-shop-avatar-lg" style={{ background: shop.color }}>{shop.emoji}</div>
+        <div>
+          <h2>{shop.name}</h2>
+          <p className="tc-shop-tagline">{shop.tagline}</p>
+          <p className="tc-muted">{shop.description}</p>
+          <div className="tc-shop-fulfil">
+            {shop.pickup && <span>Pickup</span>}
+            {shop.delivery && <span>Delivery</span>}
+            <span className="tc-muted">⏱ {shop.prepTime}</span>
+          </div>
+        </div>
+      </section>
+
+      <h3 className="tc-section-title">Menu</h3>
+      {(!items || items.length === 0) && <EmptyState emoji="🧾" title="No items yet" note="This shop hasn't added any menu items." />}
+      <div className="tc-item-list">
+        {items && items.filter((it) => it.available).map((it) => {
+          const qty = qtyOf(it.id);
+          return (
+            <div className="tc-item-row" key={it.id}>
+              <div className="tc-item-emoji">{it.emoji || "🍽️"}</div>
+              <div className="tc-item-info">
+                <h4>{it.name}</h4>
+                <p>{it.description}</p>
+                <span className="tc-price">{peso(it.price)}</span>
+              </div>
+              <div className="tc-item-action">
+                {qty === 0 ? (
+                  <button className="tc-btn tc-btn-primary" onClick={() => onAdd(shop, it)}>Add</button>
+                ) : (
+                  <Stepper qty={qty} onDec={() => onDec(shop.id, it.id)} onInc={() => onAdd(shop, it)} />
+                )}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+/* -------------------------------- Cart ----------------------------------- */
+
+function CartView({ cart, onDec, onInc, onRemove, onClear, orderType, setOrderType, shop, onCheckout, onBack }) {
+  if (!cart || Object.keys(cart.items).length === 0) {
+    return (
+      <div className="tc-page">
+        <EmptyState emoji="🛒" title="Your cart is empty" note="Add something tasty from a shop to get started."
+          action={<button className="tc-btn tc-btn-primary" onClick={onBack}>Browse shops</button>} />
+      </div>
+    );
+  }
+
+  const list = Object.values(cart.items);
+  const subtotal = list.reduce((sum, it) => sum + it.price * it.qty, 0);
+  const deliveryFee = orderType === "Delivery" ? 49 : 0;
+  const total = subtotal + deliveryFee;
+
+  return (
+    <div className="tc-page">
+      <button className="tc-back" onClick={onBack}>← Add more items</button>
+      <div className="tc-receipt">
+        <h3>Order from {cart.shopName}</h3>
+        {list.map((it) => (
+          <div className="tc-receipt-row" key={it.id}>
+            <div><span className="tc-mono">{it.qty}×</span> {it.name}</div>
+            <div className="tc-row-actions">
+              <span className="tc-mono">{peso(it.price * it.qty)}</span>
+              <Stepper qty={it.qty} onDec={() => onDec(it.id)} onInc={() => onInc(it.id)} />
+              <button className="tc-link-danger" onClick={() => onRemove(it.id)}>Remove</button>
+            </div>
+          </div>
+        ))}
+
+        <ReceiptDivider />
+
+        <div className="tc-fulfil-toggle">
+          {shop?.pickup && <button className={"tc-toggle-btn" + (orderType === "Pickup" ? " is-active" : "")} onClick={() => setOrderType("Pickup")}>Pickup</button>}
+          {shop?.delivery && <button className={"tc-toggle-btn" + (orderType === "Delivery" ? " is-active" : "")} onClick={() => setOrderType("Delivery")}>Delivery (+{peso(49)})</button>}
+        </div>
+
+        <ReceiptDivider />
+
+        <div className="tc-receipt-row tc-muted"><div>Subtotal</div><div className="tc-mono">{peso(subtotal)}</div></div>
+        {deliveryFee > 0 && <div className="tc-receipt-row tc-muted"><div>Delivery fee</div><div className="tc-mono">{peso(deliveryFee)}</div></div>}
+        <div className="tc-receipt-row tc-total-row"><div>Total</div><div className="tc-mono">{peso(total)}</div></div>
+      </div>
+
+      <div className="tc-cart-footer">
+        <button className="tc-link-danger" onClick={onClear}>Clear cart</button>
+        <button className="tc-btn tc-btn-primary tc-btn-lg" onClick={() => onCheckout(subtotal, deliveryFee, total)}>
+          Proceed to checkout — {peso(total)}
+        </button>
+      </div>
+    </div>
+  );
+}
+
+/* ------------------------------ Checkout --------------------------------- */
+
+function CheckoutView({ orderType, totals, onPlace, onBack }) {
+  const [name, setName] = useState("");
+  const [phone, setPhone] = useState("");
+  const [address, setAddress] = useState("");
+  const [payment, setPayment] = useState("Cash");
+  const [notes, setNotes] = useState("");
+
+  const needsAddress = orderType === "Delivery";
+  const canPlace = name.trim() && phone.trim() && (!needsAddress || address.trim());
+
+  return (
+    <div className="tc-page">
+      <button className="tc-back" onClick={onBack}>← Back to cart</button>
+      <h2>Checkout</h2>
+
+      <div className="tc-form-card">
+        <label className="tc-field"><span>Full name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="Juan Dela Cruz" /></label>
+        <label className="tc-field"><span>Phone number</span><input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="09xx xxx xxxx" /></label>
+        {needsAddress && (
+          <label className="tc-field"><span>Delivery address</span><input value={address} onChange={(e) => setAddress(e.target.value)} placeholder="Street, barangay, city" /></label>
+        )}
+        <div className="tc-field">
+          <span>Payment method</span>
+          <div className="tc-radio-row">
+            {["Cash", "GCash", "Card"].map((p) => (
+              <button key={p} className={"tc-toggle-btn" + (payment === p ? " is-active" : "")} onClick={() => setPayment(p)}>{p}</button>
+            ))}
+          </div>
+        </div>
+        <label className="tc-field"><span>Notes for the shop (optional)</span><textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="e.g. Less spicy, no onions…" /></label>
+      </div>
+
+      <div className="tc-receipt tc-receipt-compact">
+        <div className="tc-receipt-row"><div>Order type</div><div className="tc-mono">{orderType}</div></div>
+        <div className="tc-receipt-row"><div>Subtotal</div><div className="tc-mono">{peso(totals.subtotal)}</div></div>
+        {totals.deliveryFee > 0 && <div className="tc-receipt-row"><div>Delivery fee</div><div className="tc-mono">{peso(totals.deliveryFee)}</div></div>}
+        <div className="tc-receipt-row tc-total-row"><div>Total</div><div className="tc-mono">{peso(totals.total)}</div></div>
+      </div>
+
+      <button className="tc-btn tc-btn-primary tc-btn-lg tc-btn-full" disabled={!canPlace} onClick={() => onPlace({ name, phone, address, payment, notes })}>
+        Place order
+      </button>
+      {!canPlace && <p className="tc-hint">Fill in your name, phone{needsAddress ? ", and address" : ""} to continue.</p>}
+    </div>
+  );
+}
+
+/* ---------------------------- Order status card --------------------------- */
+
+function OrderStatusCard({ order }) {
+  const statuses = order.orderType === "Delivery" ? DELIVERY_STATUSES : PICKUP_STATUSES;
+  const idx = statuses.indexOf(order.status);
+  return (
+    <div className="tc-status-track">
+      {statuses.map((s, i) => (
+        <div key={s} className={"tc-status-step" + (i <= idx ? " is-done" : "")}>
+          <div className="tc-status-dot" />
+          <span>{s}</span>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function OrderReceipt({ order }) {
+  return (
+    <div className="tc-receipt">
+      <div className="tc-order-num tc-mono">{order.id}</div>
+      <h3>{order.shopName}</h3>
+      {order.items.map((it) => (
+        <div className="tc-receipt-row" key={it.id}><div><span className="tc-mono">{it.qty}×</span> {it.name}</div><div className="tc-mono">{peso(it.price * it.qty)}</div></div>
+      ))}
+      <ReceiptDivider />
+      <div className="tc-receipt-row tc-muted"><div>Subtotal</div><div className="tc-mono">{peso(order.subtotal)}</div></div>
+      {order.deliveryFee > 0 && <div className="tc-receipt-row tc-muted"><div>Delivery fee</div><div className="tc-mono">{peso(order.deliveryFee)}</div></div>}
+      <div className="tc-receipt-row tc-total-row"><div>Total</div><div className="tc-mono">{peso(order.total)}</div></div>
+      <ReceiptDivider />
+      <div className="tc-receipt-row tc-muted"><div>{order.orderType}</div><div>{order.payment}</div></div>
+      {order.customer?.address && <div className="tc-receipt-row tc-muted"><div>Address</div><div>{order.customer.address}</div></div>}
+      {order.notes && <div className="tc-receipt-row tc-muted"><div>Notes</div><div>{order.notes}</div></div>}
+    </div>
+  );
+}
+
+function ConfirmationView({ order, onBackHome, isNew }) {
+  if (!order) return null;
+  return (
+    <div className="tc-page">
+      {isNew && (
+        <div className="tc-confirm-banner">
+          <span className="tc-confirm-check">✓</span>
+          <div><h2>Order placed!</h2><p>Track its progress below — this updates automatically.</p></div>
+        </div>
+      )}
+      <OrderStatusCard order={order} />
+      <OrderReceipt order={order} />
+      <button className="tc-btn tc-btn-primary tc-btn-full" onClick={onBackHome}>Back to browsing</button>
+    </div>
+  );
+}
+
+/* -------------------------------- Orders --------------------------------- */
+
+function OrdersView({ orders, onOpen }) {
+  return (
+    <div className="tc-page">
+      <h2>My Orders</h2>
+      {orders.length === 0 ? (
+        <EmptyState emoji="🧾" title="No orders yet" note="Orders you place will show up here." />
+      ) : (
+        <div className="tc-order-list">
+          {[...orders].reverse().map((o) => (
+            <button className="tc-order-list-item" key={o.id} onClick={() => onOpen(o.id)}>
+              <div className="tc-order-list-emoji">🧾</div>
+              <div className="tc-order-list-info">
+                <h4>{o.shopName}</h4>
+                <p className="tc-muted">{o.items.length} item{o.items.length > 1 ? "s" : ""} · {o.orderType}</p>
+              </div>
+              <div className="tc-order-list-right">
+                <span className="tc-mono">{peso(o.total)}</span>
+                <span className="tc-tag tc-tag-status">{o.status}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ------------------------------- Sell wizard ------------------------------ */
+
+function SellWizard({ onPublish, onCancel }) {
+  const [step, setStep] = useState(1);
+  const [name, setName] = useState("");
+  const [category, setCategory] = useState(CATEGORIES[0]);
+  const [tagline, setTagline] = useState("");
+  const [description, setDescription] = useState("");
+  const [contact, setContact] = useState("");
+  const [pickup, setPickup] = useState(true);
+  const [delivery, setDelivery] = useState(false);
+  const [emoji, setEmoji] = useState("🍽️");
+  const [checks, setChecks] = useState({ owns: false, capacity: false, updates: false, demo: false });
+
+  const step1Valid = name.trim() && tagline.trim();
+  const step2Valid = description.trim() && contact.trim() && (pickup || delivery);
+  const allChecked = Object.values(checks).every(Boolean);
+  const toggleCheck = (key) => setChecks((c) => ({ ...c, [key]: !c[key] }));
+
+  const handlePublish = () => {
+    const color = SHOP_COLORS[Math.floor(Math.random() * SHOP_COLORS.length)];
+    onPublish({
+      id: newId("s"), name: name.trim(), category, tagline: tagline.trim(), description: description.trim(),
+      contact: contact.trim(), pickup, delivery, emoji: emoji.trim() || "🍽️", color, prepTime: "15-20 min",
+    });
+  };
+
+  return (
+    <div className="tc-page">
+      <button className="tc-back" onClick={onCancel}>← Cancel</button>
+      <h2>Sell on Tony &amp; Co.</h2>
+      <div className="tc-progress-dots">{[1, 2, 3, 4].map((n) => <div key={n} className={"tc-dot" + (n <= step ? " is-active" : "")} />)}</div>
+
+      {step === 1 && (
+        <div className="tc-form-card">
+          <h3>Shop basics</h3>
+          <label className="tc-field"><span>Shop name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Nanay's Grill House" /></label>
+          <label className="tc-field"><span>Category</span>
+            <select value={category} onChange={(e) => setCategory(e.target.value)}>
+              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+            </select>
+          </label>
+          <label className="tc-field"><span>One-line tagline</span><input value={tagline} onChange={(e) => setTagline(e.target.value)} placeholder="e.g. Charcoal-grilled favorites" /></label>
+          <label className="tc-field"><span>Shop emoji</span><input value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={2} placeholder="🍽️" style={{ maxWidth: 80 }} /></label>
+          <button className="tc-btn tc-btn-primary" disabled={!step1Valid} onClick={() => setStep(2)}>Continue</button>
+        </div>
+      )}
+
+      {step === 2 && (
+        <div className="tc-form-card">
+          <h3>Shop details</h3>
+          <label className="tc-field"><span>Description</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Tell customers what makes your food worth ordering." /></label>
+          <label className="tc-field"><span>Contact number</span><input value={contact} onChange={(e) => setContact(e.target.value)} placeholder="09xx xxx xxxx" /></label>
+          <div className="tc-field"><span>How do you fulfill orders?</span>
+            <div className="tc-radio-row">
+              <button className={"tc-toggle-btn" + (pickup ? " is-active" : "")} onClick={() => setPickup(!pickup)}>Pickup</button>
+              <button className={"tc-toggle-btn" + (delivery ? " is-active" : "")} onClick={() => setDelivery(!delivery)}>Delivery</button>
+            </div>
+          </div>
+          <div className="tc-wizard-nav">
+            <button className="tc-btn" onClick={() => setStep(1)}>Back</button>
+            <button className="tc-btn tc-btn-primary" disabled={!step2Valid} onClick={() => setStep(3)}>Continue</button>
+          </div>
+        </div>
+      )}
+
+      {step === 3 && (
+        <div className="tc-form-card">
+          <h3>Before you publish</h3>
+          <p className="tc-muted">A few basics to keep the marketplace reliable for customers.</p>
+          <label className="tc-check-row"><input type="checkbox" checked={checks.owns} onChange={() => toggleCheck("owns")} /><span>I own or manage this shop, and the information I entered is accurate.</span></label>
+          <label className="tc-check-row"><input type="checkbox" checked={checks.capacity} onChange={() => toggleCheck("capacity")} /><span>I'll only list food I can actually prepare and fulfill.</span></label>
+          <label className="tc-check-row"><input type="checkbox" checked={checks.updates} onChange={() => toggleCheck("updates")} /><span>I'll mark items unavailable when I run out.</span></label>
+          <label className="tc-check-row"><input type="checkbox" checked={checks.demo} onChange={() => toggleCheck("demo")} /><span>I understand this is a demo storefront — no real payments are processed.</span></label>
+          <div className="tc-wizard-nav">
+            <button className="tc-btn" onClick={() => setStep(2)}>Back</button>
+            <button className="tc-btn tc-btn-primary" disabled={!allChecked} onClick={() => setStep(4)}>Continue</button>
+          </div>
+        </div>
+      )}
+
+      {step === 4 && (
+        <div className="tc-form-card">
+          <h3>Review &amp; publish</h3>
+          <div className="tc-review-card">
+            <div className="tc-shop-avatar" style={{ background: "#1C1B19" }}>{emoji || "🍽️"}</div>
+            <div>
+              <h4>{name}</h4>
+              <p className="tc-muted">{tagline}</p>
+              <p className="tc-muted">{description}</p>
+              <div className="tc-shop-fulfil">{pickup && <span>Pickup</span>}{delivery && <span>Delivery</span>}</div>
+            </div>
+          </div>
+          <p className="tc-hint">Your shop will appear for everyone browsing this site on this device. You can add menu items right after publishing.</p>
+          <div className="tc-wizard-nav">
+            <button className="tc-btn" onClick={() => setStep(3)}>Back</button>
+            <button className="tc-btn tc-btn-primary" onClick={handlePublish}>Publish my shop</button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------- Vendor dashboard ----------------------------- */
+
+function VendorDashboard({ myShops, activeShopId, setActiveShopId, items, onAddItem, onRemoveItem, onToggleAvailable, onCreateNew }) {
+  const [name, setName] = useState("");
+  const [price, setPrice] = useState("");
+  const [description, setDescription] = useState("");
+  const [emoji, setEmoji] = useState("🍽️");
+
+  const shop = myShops.find((s) => s.id === activeShopId) || myShops[0];
+
+  if (!shop) {
+    return (
+      <div className="tc-page">
+        <EmptyState emoji="🏪" title="You haven't published a shop yet" note="Set one up in a few minutes and start adding menu items."
+          action={<button className="tc-btn tc-btn-primary" onClick={onCreateNew}>Sell with us</button>} />
+      </div>
+    );
+  }
+
+  const canAdd = name.trim() && Number(price) > 0;
+  const submit = () => {
+    onAddItem(shop.id, { id: newId("i"), name: name.trim(), price: Number(price), description: description.trim(), emoji: emoji.trim() || "🍽️", available: true });
+    setName(""); setPrice(""); setDescription(""); setEmoji("🍽️");
+  };
+
+  return (
+    <div className="tc-page">
+      <h2>Manage your shop</h2>
+      {myShops.length > 1 && (
+        <div className="tc-radio-row" style={{ marginBottom: 16 }}>
+          {myShops.map((s) => (
+            <button key={s.id} className={"tc-toggle-btn" + (s.id === shop.id ? " is-active" : "")} onClick={() => setActiveShopId(s.id)}>{s.emoji} {s.name}</button>
+          ))}
+        </div>
+      )}
+
+      <div className="tc-shop-header" style={{ borderColor: shop.color }}>
+        <div className="tc-shop-avatar tc-shop-avatar-lg" style={{ background: shop.color }}>{shop.emoji}</div>
+        <div><h3>{shop.name}</h3><p className="tc-shop-tagline">{shop.tagline}</p></div>
+      </div>
+
+      <h3 className="tc-section-title">Add a menu item</h3>
+      <div className="tc-form-card">
+        <label className="tc-field"><span>Item name</span><input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Sisig Rice Bowl" /></label>
+        <label className="tc-field"><span>Price (₱)</span><input type="number" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="129" /></label>
+        <label className="tc-field"><span>Description</span><textarea value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Short, appetizing description." /></label>
+        <label className="tc-field"><span>Emoji</span><input value={emoji} onChange={(e) => setEmoji(e.target.value)} maxLength={2} style={{ maxWidth: 80 }} /></label>
+        <button className="tc-btn tc-btn-primary" disabled={!canAdd} onClick={submit}>Add item</button>
+      </div>
+
+      <h3 className="tc-section-title">Your menu ({items?.length || 0})</h3>
+      {(!items || items.length === 0) ? (
+        <EmptyState emoji="🧾" title="No items yet" note="Add your first item above." />
+      ) : (
+        <div className="tc-item-list">
+          {items.map((it) => (
+            <div className="tc-item-row" key={it.id}>
+              <div className="tc-item-emoji">{it.emoji}</div>
+              <div className="tc-item-info">
+                <h4>{it.name}{!it.available && <span className="tc-tag tc-tag-muted"> Unavailable</span>}</h4>
+                <p>{it.description}</p>
+                <span className="tc-price">{peso(it.price)}</span>
+              </div>
+              <div className="tc-item-action tc-item-action-col">
+                <button className="tc-btn tc-btn-sm" onClick={() => onToggleAvailable(shop.id, it.id)}>{it.available ? "Mark sold out" : "Mark available"}</button>
+                <button className="tc-link-danger" onClick={() => onRemoveItem(shop.id, it.id)}>Remove</button>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* --------------------------------- App ------------------------------------ */
+
+function App() {
+  const [view, setView] = useState("home");
+  const [shops, setShops] = useState([]);
+  const [menus, setMenus] = useState({});
+  const [activeShopId, setActiveShopId] = useState(null);
+  const [cart, setCart] = useState(null);
+  const [orderType, setOrderType] = useState("Pickup");
+  const [totals, setTotals] = useState({ subtotal: 0, deliveryFee: 0, total: 0 });
+  const [myOrders, setMyOrders] = useState([]);
+  const [activeOrderId, setActiveOrderId] = useState(null);
+  const [isNewOrder, setIsNewOrder] = useState(false);
+  const [myShopIds, setMyShopIds] = useState([]);
+  const [activeVendorShopId, setActiveVendorShopId] = useState(null);
+  const [toast, setToast] = useState(null);
+  const toastTimer = useRef(null);
+  const statusTimer = useRef(null);
+
+  const showToast = (msg) => {
+    setToast(msg);
+    clearTimeout(toastTimer.current);
+    toastTimer.current = setTimeout(() => setToast(null), 2200);
+  };
+
+  useEffect(() => {
+    let shopList = storageGet("shops-list");
+    if (!shopList) { shopList = SEED_SHOPS; storageSet("shops-list", shopList); }
+    setShops(shopList);
+
+    const menuEntries = {};
+    for (const s of shopList) {
+      let m = storageGet(`menu:${s.id}`);
+      if (!m && SEED_MENUS[s.id]) { m = SEED_MENUS[s.id]; storageSet(`menu:${s.id}`, m); }
+      menuEntries[s.id] = m || [];
+    }
+    setMenus(menuEntries);
+
+    setMyOrders(storageGet("my-orders") || []);
+    const shopIds = storageGet("my-vendor-shops") || [];
+    setMyShopIds(shopIds);
+    if (shopIds.length > 0) setActiveVendorShopId(shopIds[0]);
+  }, []);
+
+  useEffect(() => {
+    if (!activeOrderId) return;
+    clearInterval(statusTimer.current);
+    statusTimer.current = setInterval(() => {
+      setMyOrders((prev) => {
+        const idx = prev.findIndex((o) => o.id === activeOrderId);
+        if (idx === -1) return prev;
+        const order = prev[idx];
+        const statuses = order.orderType === "Delivery" ? DELIVERY_STATUSES : PICKUP_STATUSES;
+        const curIdx = statuses.indexOf(order.status);
+        if (curIdx >= statuses.length - 1) { clearInterval(statusTimer.current); return prev; }
+        const updated = { ...order, status: statuses[curIdx + 1] };
+        const next = [...prev]; next[idx] = updated;
+        storageSet("my-orders", next);
+        return next;
+      });
+    }, 4500);
+    return () => clearInterval(statusTimer.current);
+  }, [activeOrderId]);
+
+  const openShop = (id) => { setActiveShopId(id); setView("shop"); };
+
+  const addToCart = (shop, item) => {
+    setCart((prev) => {
+      if (prev && prev.shopId !== shop.id) {
+        showToast(`Started a new order from ${shop.name}`);
+        return { shopId: shop.id, shopName: shop.name, items: { [item.id]: { ...item, qty: 1 } } };
+      }
+      const base = prev || { shopId: shop.id, shopName: shop.name, items: {} };
+      const existing = base.items[item.id];
+      return { ...base, items: { ...base.items, [item.id]: { ...item, qty: (existing?.qty || 0) + 1 } } };
+    });
+  };
+
+  const decFromCart = (shopId, itemId) => {
+    setCart((prev) => {
+      if (!prev) return prev;
+      const existing = prev.items[itemId];
+      if (!existing) return prev;
+      if (existing.qty <= 1) {
+        const items = { ...prev.items }; delete items[itemId];
+        return Object.keys(items).length ? { ...prev, items } : null;
+      }
+      return { ...prev, items: { ...prev.items, [itemId]: { ...existing, qty: existing.qty - 1 } } };
+    });
+  };
+
+  const removeFromCart = (itemId) => {
+    setCart((prev) => {
+      if (!prev) return prev;
+      const items = { ...prev.items }; delete items[itemId];
+      return Object.keys(items).length ? { ...prev, items } : null;
+    });
+  };
+
+  const clearCart = () => setCart(null);
+  const cartCount = cart ? Object.values(cart.items).reduce((n, it) => n + it.qty, 0) : 0;
+  const activeShop = shops.find((s) => s.id === activeShopId);
+  const cartShop = cart ? shops.find((s) => s.id === cart.shopId) : null;
+
+  const goCheckout = (subtotal, deliveryFee, total) => { setTotals({ subtotal, deliveryFee, total }); setView("checkout"); };
+
+  const placeOrder = (customer) => {
+    const order = {
+      id: orderNumber(), shopId: cart.shopId, shopName: cart.shopName, items: Object.values(cart.items),
+      subtotal: totals.subtotal, deliveryFee: totals.deliveryFee, total: totals.total, orderType,
+      customer, payment: customer.payment, notes: customer.notes, status: "Received", createdAt: Date.now(),
+    };
+    const next = [...myOrders, order];
+    setMyOrders(next);
+    storageSet("my-orders", next);
+    setActiveOrderId(order.id);
+    setIsNewOrder(true);
+    setCart(null);
+    setView("confirmation");
+  };
+
+  const openOrder = (id) => { setActiveOrderId(id); setIsNewOrder(false); setView("confirmation"); };
+
+  const publishShop = (shop) => {
+    const nextShops = [...shops, shop];
+    setShops(nextShops);
+    storageSet("shops-list", nextShops);
+    setMenus((prev) => ({ ...prev, [shop.id]: [] }));
+    storageSet(`menu:${shop.id}`, []);
+    const nextIds = [...myShopIds, shop.id];
+    setMyShopIds(nextIds);
+    storageSet("my-vendor-shops", nextIds);
+    setActiveVendorShopId(shop.id);
+    showToast("Shop published!");
+    setView("vendor");
+  };
+
+  const addMenuItem = (shopId, item) => {
+    const nextItems = [...(menus[shopId] || []), item];
+    setMenus((prev) => ({ ...prev, [shopId]: nextItems }));
+    storageSet(`menu:${shopId}`, nextItems);
+    showToast("Item added to your menu");
+  };
+
+  const removeMenuItem = (shopId, itemId) => {
+    const nextItems = (menus[shopId] || []).filter((it) => it.id !== itemId);
+    setMenus((prev) => ({ ...prev, [shopId]: nextItems }));
+    storageSet(`menu:${shopId}`, nextItems);
+  };
+
+  const toggleAvailable = (shopId, itemId) => {
+    const nextItems = (menus[shopId] || []).map((it) => (it.id === itemId ? { ...it, available: !it.available } : it));
+    setMenus((prev) => ({ ...prev, [shopId]: nextItems }));
+    storageSet(`menu:${shopId}`, nextItems);
+  };
+
+  const activeOrder = myOrders.find((o) => o.id === activeOrderId);
+  const myShops = shops.filter((s) => myShopIds.includes(s.id));
+
+  return (
+    <div className="tc-app">
+      <Header view={view} setView={setView} cartCount={cartCount} />
+      <Toast message={toast} />
+
+      {view === "home" && <HomeView shops={shops} onOpenShop={openShop} />}
+
+      {view === "shop" && (
+        <ShopView shop={activeShop} items={menus[activeShopId]} cart={cart} onAdd={addToCart} onDec={decFromCart} onBack={() => setView("home")} />
+      )}
+
+      {view === "cart" && (
+        <CartView cart={cart} onInc={(itemId) => addToCart(cartShop, cart.items[itemId])} onDec={(itemId) => decFromCart(cart.shopId, itemId)}
+          onRemove={removeFromCart} onClear={clearCart} orderType={orderType} setOrderType={setOrderType} shop={cartShop}
+          onCheckout={goCheckout} onBack={() => (cart ? openShop(cart.shopId) : setView("home"))} />
+      )}
+
+      {view === "checkout" && cart && (
+        <CheckoutView orderType={orderType} totals={totals} onPlace={placeOrder} onBack={() => setView("cart")} />
+      )}
+
+      {view === "confirmation" && <ConfirmationView order={activeOrder} isNew={isNewOrder} onBackHome={() => setView("home")} />}
+
+      {view === "orders" && <OrdersView orders={myOrders} onOpen={openOrder} />}
+
+      {view === "sell" && <SellWizard onPublish={publishShop} onCancel={() => setView("home")} />}
+
+      {view === "vendor" && (
+        <VendorDashboard myShops={myShops} activeShopId={activeVendorShopId} setActiveShopId={setActiveVendorShopId}
+          items={menus[activeVendorShopId]} onAddItem={addMenuItem} onRemoveItem={removeMenuItem}
+          onToggleAvailable={toggleAvailable} onCreateNew={() => setView("sell")} />
+      )}
+
+      <footer className="tc-footer">
+        <span>Tony &amp; Co. — a demo food site. Data is saved in this browser only.</span>
+        <button className="tc-link" onClick={() => setView("vendor")}>Manage my shop</button>
+      </footer>
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+</script>
+</body>
+</html>
